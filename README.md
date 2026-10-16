@@ -1,24 +1,28 @@
-# MOLI — map-first (pre-charity)
+# MOLI — road sightings map
 
-**Primary job:** free, account-gated road sightings map (data collection).
-**Secondary:** possible charity formation later — not required for the map to work.
+**Mercy On Lost Individuals** is a **data-first** UK map for reporting animals killed or injured on roads.
 
-## Product rules
+| Priority | Role |
+|----------|------|
+| Primary | Collect sightings + road context + preferred local solutions |
+| Secondary | Possible charity formation later — not required for the map |
 
-| Rule | Detail |
-|------|--------|
-| Browse map | Public, no login |
-| Add a pin | Free, requires Princess of Reality account |
-| Public pins | Moderated only (`status: approved`) |
-| Not a charity | Copy stays clear until registration |
-| Safety | Never encourage stopping on fast roads |
+## Live
 
-## Auth path
+https://haylynn.github.io/MOLI/
 
-1. **Now:** local contributor mode → queue in localStorage
-2. **Next:** Supabase Auth (shared with hub) + moli_reports table
-3. Approve → public sightings feed
+## Features
 
-## Deploy
+- Interactive map (clusters, filters, near me, draggable pins)
+- Free reporting behind a Princess of Reality account (local contributor mode until Supabase)
+- Road type, speed limit, setting, traffic
+- Solution preferences (signs, crossings, speeds, etc.)
+- Moderated public pins via `sightings.json`
 
-Upload as `moli/` → https://haylynn.github.io/haylynn/moli/
+## Not a registered charity
+
+Not OSCR / Charity Commission registered. Not an emergency service. Stay safe when reporting.
+
+## Related
+
+Princess of Reality hub: https://haylynn.github.io/haylynn/

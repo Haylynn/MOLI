@@ -6,7 +6,7 @@
 <title>MOLI — Road sightings map</title>
 <meta name="description" content="Interactive UK road animal sightings map. Free reporting with a Princess of Reality account. Not a registered charity.">
 <link rel="canonical" href="https://haylynn.github.io/haylynn/moli/">
-<meta name="theme-color" content="#1E2438">
+<meta name="theme-color" content="#9b7fd4">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Archivo+Narrow:wght@500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -17,15 +17,29 @@
 <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 <style>
   :root {
-    --dusk: #1E2438; --dusk-2: #171C2C; --asphalt: #26262A;
-    --verge: #3F5C46; --verge-2: #33493A; --chalk: #EEEAE0;
-    --chalk-dim: #D9D4C6; --amber: #E8A33D; --rust: #9C3B2A;
-    --line: rgba(38, 38, 42, 0.12);
+    /* Princess of Reality hues — pastel for MOLI */
+    --void: #f4f0fa;
+    --dusk: #5b4a7a;
+    --dusk-2: #4a3d66;
+    --asphalt: #3d3550;
+    --verge: #6bb89a;
+    --verge-2: #5a9e84;
+    --chalk: #f7f4fc;
+    --chalk-dim: #e8e2f2;
+    --amber: #b8a0e0;
+    --amber-bright: #9b7fd4;
+    --rust: #c47a8a;
+    --line: rgba(91, 74, 122, 0.14);
+    --green-soft: #a8e0c8;
+    --purple-soft: #d4c4f0;
+    --purple-mid: #9b7fd4;
+    --ink: #3d3550;
+    --panel: rgba(255, 255, 255, 0.92);
   }
   * { box-sizing: border-box; }
   html, body { height: 100%; margin: 0; }
   body {
-    background: var(--chalk); color: var(--asphalt);
+    background: var(--void); color: var(--ink);
     font-family: 'Source Sans 3', system-ui, sans-serif;
     font-size: 16px; line-height: 1.55;
   }
@@ -33,7 +47,7 @@
   .label {
     font-family: 'Archivo Narrow', sans-serif; font-weight: 600;
     text-transform: uppercase; letter-spacing: 0.12em;
-    font-size: 0.72rem; color: var(--verge);
+    font-size: 0.72rem; color: var(--purple-mid);
   }
   h1, h2 {
     font-family: 'Newsreader', Georgia, serif; font-weight: 500;
@@ -48,37 +62,45 @@
   .topbar {
     display: flex; align-items: center; justify-content: space-between;
     gap: 0.75rem; padding: 0.55rem 0.85rem;
-    background: rgba(238, 234, 224, 0.96);
+    background: rgba(247, 244, 252, 0.96);
     border-bottom: 1px solid var(--line); z-index: 1000;
   }
   .brand {
     font-family: 'Archivo Narrow', sans-serif; font-weight: 700;
     letter-spacing: 0.2em; text-decoration: none; color: var(--dusk); font-size: 0.9rem;
   }
-  .brand span { color: var(--amber); }
+  .brand span { color: var(--purple-mid); }
   .top-actions { display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap; }
   .btn {
     font-family: 'Archivo Narrow', sans-serif; font-weight: 700;
     font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase;
-    border: none; border-radius: 2px; padding: 0.45rem 0.75rem;
+    border: none; border-radius: 999px; padding: 0.45rem 0.85rem;
     cursor: pointer; text-decoration: none; display: inline-block;
-    background: var(--verge); color: var(--chalk);
+    background: linear-gradient(135deg, var(--verge) 0%, var(--green-soft) 100%);
+    color: var(--dusk-2);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--dusk);
+    border: 1px solid var(--line);
+  }
+  .btn-amber {
+    background: linear-gradient(135deg, var(--purple-mid) 0%, var(--purple-soft) 100%);
+    color: var(--dusk-2);
   }
   .btn:hover { filter: brightness(1.05); }
-  .btn-ghost { background: transparent; color: var(--asphalt); border: 1px solid var(--line); }
-  .btn-amber { background: var(--amber); color: var(--dusk-2); }
   .btn-sm { padding: 0.35rem 0.55rem; font-size: 0.68rem; }
   .user-chip {
     font-family: 'Archivo Narrow', sans-serif; font-size: 0.7rem;
     letter-spacing: 0.06em; padding: 0.3rem 0.55rem; border-radius: 999px;
     background: #fff; border: 1px solid var(--line);
   }
-  .user-chip.on { border-color: var(--verge); color: var(--verge-2); }
+  .user-chip.on { border-color: var(--purple-mid); color: var(--dusk); background: var(--purple-soft); }
 
   .toolbar {
     display: flex; flex-wrap: wrap; gap: 0.45rem 0.65rem;
     align-items: center; padding: 0.45rem 0.85rem;
-    background: #e8e3d6; border-bottom: 1px solid var(--line); z-index: 1000;
+    background: var(--chalk-dim); border-bottom: 1px solid var(--line); z-index: 1000;
   }
   .toolbar label {
     font-family: 'Archivo Narrow', sans-serif; font-size: 0.65rem;
@@ -97,12 +119,24 @@
 
   .float-panel {
     position: absolute; z-index: 500;
-    background: rgba(255, 255, 255, 0.97);
+    background: var(--panel);
     border: 1px solid var(--line); border-radius: 4px;
     box-shadow: 0 8px 28px rgba(30, 36, 56, 0.12);
     max-width: min(22rem, calc(100% - 1.5rem));
   }
-  .intro-panel { top: 0.65rem; left: 0.65rem; padding: 0.9rem 1rem; }
+  .intro-panel { top: 0.65rem; left: 0.65rem; padding: 0.9rem 1rem 1rem; padding-right: 2.25rem; }
+
+  .intro-close {
+    position: absolute; top: 0.45rem; right: 0.45rem;
+    width: 1.75rem; height: 1.75rem; border: none; border-radius: 2px;
+    background: transparent; color: var(--asphalt); opacity: 0.55;
+    font-size: 1.15rem; line-height: 1; cursor: pointer; padding: 0;
+    font-family: inherit;
+  }
+  .intro-close:hover, .intro-close:focus-visible {
+    opacity: 1; background: rgba(0,0,0,0.06); outline: none;
+  }
+
   .intro-panel p { margin: 0.35rem 0 0; font-size: 0.88rem; opacity: 0.92; }
   .intro-panel .note {
     margin-top: 0.55rem; font-size: 0.78rem; opacity: 0.8;
@@ -115,10 +149,10 @@
   .legend div { display: flex; align-items: center; gap: 0.4rem; margin: 0.2rem 0; }
   .swatch {
     width: 10px; height: 10px; border-radius: 50%;
-    border: 2px solid #3F5C46; background: #3F5C46; flex-shrink: 0;
+    border: 2px solid #6bb89a; background: #6bb89a; flex-shrink: 0;
   }
-  .swatch.draft { border-color: #E8A33D; background: #E8A33D; }
-  .swatch.cluster { border-radius: 3px; background: #3F5C46; border-color: #2a3f30; }
+  .swatch.draft { border-color: #b8a0e0; background: #b8a0e0; }
+  .swatch.cluster { border-radius: 3px; background: #9b7fd4; border-color: #5b4a7a; }
 
   .report-panel {
     bottom: 0.65rem; left: 0.65rem; right: 0.65rem;
@@ -142,8 +176,8 @@
   .form-status.ok { color: var(--verge-2); }
   .form-status.err { color: var(--rust); }
   .safety {
-    font-size: 0.78rem; background: #fff8e8;
-    border: 1px solid rgba(232, 163, 61, 0.4);
+    font-size: 0.78rem; background: #f0eaf8;
+    border: 1px solid rgba(155, 127, 212, 0.35);
     padding: 0.45rem 0.55rem; margin-bottom: 0.5rem; border-radius: 2px;
   }
   .lock-msg { font-size: 0.88rem; margin: 0.4rem 0 0.65rem; }
@@ -172,11 +206,12 @@
 
   .stats-bar {
     display: flex; flex-wrap: wrap; gap: 0.65rem 1.1rem;
-    padding: 0.5rem 0.85rem; background: var(--dusk);
+    padding: 0.5rem 0.85rem;
+    background: linear-gradient(90deg, var(--dusk) 0%, var(--dusk-2) 100%);
     color: var(--chalk-dim); font-size: 0.8rem; z-index: 1000;
   }
-  .stats-bar strong { color: var(--chalk); }
-  .stats-bar a { color: var(--amber); }
+  .stats-bar strong { color: #fff; }
+  .stats-bar a { color: var(--green-soft); }
 
   .modal-backdrop {
     display: none; position: fixed; inset: 0;
@@ -218,12 +253,12 @@
   .leaflet-popup-content { font-size: 0.88rem; line-height: 1.4; margin: 0.55rem 0.7rem; }
   .leaflet-popup-content strong { color: var(--dusk); }
   .popup-meta { font-size: 0.78rem; opacity: 0.85; margin-top: 0.25rem; }
-  .marker-cluster-small { background-color: rgba(63, 92, 70, 0.35); }
-  .marker-cluster-small div { background-color: rgba(63, 92, 70, 0.75); }
-  .marker-cluster-medium { background-color: rgba(63, 92, 70, 0.45); }
-  .marker-cluster-medium div { background-color: rgba(63, 92, 70, 0.85); }
-  .marker-cluster-large { background-color: rgba(156, 59, 42, 0.4); }
-  .marker-cluster-large div { background-color: rgba(156, 59, 42, 0.85); }
+  .marker-cluster-small { background-color: rgba(155, 127, 212, 0.35); }
+  .marker-cluster-small div { background-color: rgba(107, 184, 154, 0.8); }
+  .marker-cluster-medium { background-color: rgba(155, 127, 212, 0.4); }
+  .marker-cluster-medium div { background-color: rgba(107, 184, 154, 0.85); }
+  .marker-cluster-large { background-color: rgba(155, 127, 212, 0.45); }
+  .marker-cluster-large div { background-color: rgba(91, 74, 122, 0.8); }
 
   @media (max-width: 560px) {
     .intro-panel { max-width: calc(100% - 1.3rem); }
@@ -270,6 +305,7 @@
       <div class="toast" id="toast" role="status"></div>
 
       <div class="float-panel intro-panel" id="intro-panel">
+        <button type="button" class="intro-close" id="btn-intro-close" aria-label="Dismiss welcome message">×</button>
         <p class="label">Shared data · free</p>
         <h1>Pin what you’ve seen</h1>
         <p>
@@ -660,8 +696,8 @@
       filtered.forEach(function (s) {
         var m = L.circleMarker([s.lat, s.lng], {
           radius: 8,
-          color: '#2a3f30',
-          fillColor: '#3F5C46',
+          color: '#5a9e84',
+          fillColor: '#6bb89a',
           fillOpacity: 0.9,
           weight: 2
         });
@@ -753,6 +789,25 @@
     var reportPanel = document.getElementById('report-panel');
     var introPanel = document.getElementById('intro-panel');
 
+    function dismissIntro() {
+      if (introPanel) introPanel.style.display = 'none';
+      try { sessionStorage.setItem('moli-intro-dismissed', '1'); } catch (e) {}
+    }
+    function maybeShowIntro() {
+      try {
+        if (sessionStorage.getItem('moli-intro-dismissed') === '1' && introPanel) {
+          introPanel.style.display = 'none';
+        }
+      } catch (e) {}
+    }
+    var btnIntroClose = document.getElementById('btn-intro-close');
+    if (btnIntroClose) btnIntroClose.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      dismissIntro();
+    });
+    maybeShowIntro();
+
     function syncLatLngInputs(latlng) {
       document.getElementById('lat').value = latlng.lat.toFixed(5);
       document.getElementById('lng').value = latlng.lng.toFixed(5);
@@ -762,8 +817,8 @@
       if (draftMarker) map.removeLayer(draftMarker);
       draftMarker = L.circleMarker(latlng, {
         radius: 10,
-        color: '#c68a2e',
-        fillColor: '#E8A33D',
+        color: '#9b7fd4',
+        fillColor: '#b8a0e0',
         fillOpacity: 0.95,
         weight: 2,
         draggable: false
@@ -817,7 +872,13 @@
 
     document.getElementById('btn-cancel-report').onclick = function () {
       reportPanel.classList.remove('open');
-      introPanel.style.display = '';
+      try {
+        if (sessionStorage.getItem('moli-intro-dismissed') !== '1') {
+          introPanel.style.display = '';
+        }
+      } catch (e) {
+        introPanel.style.display = '';
+      }
       if (draftMarker) { map.removeLayer(draftMarker); draftMarker = null; }
       document.getElementById('form-status').textContent = '';
     };
