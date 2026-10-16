@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="MOLI wolf mark">
+  <title>MOLI</title>
+  <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke-width="2.4" d="
+      M 32 56
+      C 16 50, 8 38, 10 26
+      C 6 16, 14 6, 26 6
+      C 30 2, 34 2, 38 6
+      C 50 6, 58 16, 54 26
+      C 56 38, 48 50, 32 56
+      Z"/>
+    <path stroke-width="1.8" d="M 22 16 L 16 4 L 30 14"/>
+    <path stroke-width="1.8" d="M 42 16 L 48 4 L 34 14"/>
+    <path stroke-width="1.8" d="M 24 26 L 28 28"/>
+    <path stroke-width="1.8" d="M 40 26 L 36 28"/>
+    <path stroke-width="1.6" d="M 32 30 L 32 38"/>
+    <path stroke-width="1.6" d="M 26 40 Q 32 46 38 40"/>
+    <path stroke-width="1.4" d="
+      M 22 24
+      C 26 18, 38 18, 42 24
+      C 44 30, 40 36, 32 38
+      C 24 36, 20 30, 22 24
+      Z"/>
+  </g>
+</svg>

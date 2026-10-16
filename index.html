@@ -6,6 +6,7 @@
 <title>MOLI — Road sightings map</title>
 <meta name="description" content="Interactive UK road animal sightings map. Free reporting with a Princess of Reality account. Not a registered charity.">
 <link rel="canonical" href="https://haylynn.github.io/haylynn/moli/">
+<link rel="icon" href="moli-wolf.svg" type="image/svg+xml">
 <meta name="theme-color" content="#6b4fa8" id="meta-theme-color">
 <script>
 (function(){try{var t=localStorage.getItem('moli-theme');if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
@@ -121,10 +122,34 @@
     border-bottom: 1px solid var(--line); z-index: 1000;
   }
   .brand {
-    font-family: 'Archivo Narrow', sans-serif; font-weight: 700;
-    letter-spacing: 0.2em; text-decoration: none; color: var(--dusk); font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    text-decoration: none;
+    color: var(--dusk-2);
   }
-  .brand span { color: var(--purple-mid); }
+  .brand-mark {
+    display: block;
+    height: 1.9rem;
+    width: auto;
+    max-width: min(11.5rem, 48vw);
+    color: var(--purple-mid);
+    flex-shrink: 0;
+  }
+  .brand:hover .brand-mark {
+    color: var(--dusk-2);
+  }
+  [data-theme="dark"] .brand:hover .brand-mark {
+    color: var(--ink);
+  }
+  .brand-fallback {
+    font-family: 'Archivo Narrow', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    font-size: 0.9rem;
+    color: var(--dusk-2);
+  }
+  .brand-fallback span { color: var(--purple-mid); }
   .top-actions { display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap; }
   .btn {
     font-family: 'Archivo Narrow', sans-serif; font-weight: 700;
@@ -337,7 +362,24 @@
 <body>
   <div class="app">
     <header class="topbar">
-      <a class="brand" href="./">MOLI<span>·</span></a>
+      <a class="brand" href="./" aria-label="MOLI home">
+        <svg class="brand-mark" viewBox="0 0 280 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+          <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke-width="2.2" d="M28 50C18 46 10 36 12 26C8 18 12 10 22 8C28 4 36 4 42 8C52 10 56 18 52 26C54 36 46 46 36 50Z"/>
+            <path stroke-width="1.6" d="M22 22C26 16 38 16 42 22C44 28 40 34 32 36C24 34 20 28 22 22Z"/>
+            <path stroke-width="2" d="M18 14L14 4L26 12"/>
+            <path stroke-width="2" d="M46 14L50 4L38 12"/>
+            <path stroke-width="1.8" d="M24 24L28 25"/>
+            <path stroke-width="1.8" d="M40 24L36 25"/>
+            <path stroke-width="1.6" d="M32 28L32 34"/>
+            <path stroke-width="1.6" d="M28 36Q32 40 36 36"/>
+            <path stroke-width="1.3" d="M18 30Q14 34 16 40"/>
+            <path stroke-width="1.3" d="M46 30Q50 34 48 40"/>
+          </g>
+          <text x="68" y="42" font-family="Archivo Narrow, Arial Narrow, sans-serif" font-size="28" font-weight="700" letter-spacing="0.28em" fill="currentColor">MOLI</text>
+          <circle cx="198" cy="38" r="3.2" fill="currentColor" opacity="0.9"/>
+        </svg>
+      </a>
       <div class="top-actions">
         <span class="user-chip" id="user-chip">Not signed in</span>
         <button type="button" class="btn btn-ghost btn-theme" id="btn-theme" aria-label="Toggle light and dark mode" title="Theme">◐</button>
