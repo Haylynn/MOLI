@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MOLI — Mercy On Lost Individuals</title>
+<meta name="description" content="MOLI is a proposed UK welfare body in formation for animals killed or injured on roads. Scotland first. Report sightings. Respond, record, prevent. Not yet a registered charity.">
+<link rel="canonical" href="https://haylynn.github.io/haylynn/moli/">
+<meta name="theme-color" content="#1E2438">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Archivo+Narrow:wght@500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<style>
+  :root {
+    --dusk: #1E2438;
+    --dusk-2: #171C2C;
+    --asphalt: #26262A;
+    --verge: #3F5C46;
+    --verge-2: #33493A;
+    --chalk: #EEEAE0;
+    --chalk-dim: #D9D4C6;
+    --amber: #E8A33D;
+    --amber-dim: #C68A2E;
+    --rust: #9C3B2A;
+    --line: rgba(38, 38, 42, 0.12);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--chalk);
+    color: var(--asphalt);
+    font-family: 'Source Sans 3', system-ui, sans-serif;
+    font-size: 17px;
+    line-height: 1.65;
+  }
+  a { color: var(--verge-2); }
+  a:hover { color: var(--asphalt); }
+  .label {
+    font-family: 'Archivo Narrow', sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 0.78rem;
+    color: var(--verge);
+  }
+  h1, h2, h3 {
+    font-family: 'Newsreader', Georgia, serif;
+    font-weight: 500;
+    margin: 0 0 0.6rem;
+    line-height: 1.2;
+    color: var(--dusk);
+  }
+  h1 { font-size: clamp(2rem, 5vw, 3rem); }
+  h2 { font-size: clamp(1.45rem, 3vw, 1.9rem); }
+  h3 { font-size: 1.2rem; }
+  .wrap { width: min(720px, calc(100% - 2.4rem)); margin: 0 auto; }
+  .wrap-wide { width: min(980px, calc(100% - 2.4rem)); margin: 0 auto; }
+
+  .site-header {
+    position: sticky; top: 0; z-index: 1000;
+    background: rgba(238, 234, 224, 0.92);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .site-header .inner {
+    width: min(980px, calc(100% - 2.4rem));
+    margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 1rem; padding: 0.75rem 0;
+  }
+  .brand {
+    font-family: 'Archivo Narrow', sans-serif;
+    font-weight: 700; letter-spacing: 0.22em;
+    text-decoration: none; color: var(--dusk); font-size: 0.95rem;
+  }
+  .brand span { color: var(--amber); }
+  .nav { display: flex; flex-wrap: wrap; gap: 0.35rem 0.9rem; justify-content: flex-end; }
+  .nav a {
+    font-family: 'Archivo Narrow', sans-serif;
+    font-size: 0.8rem; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; text-decoration: none;
+    color: var(--asphalt); opacity: 0.75;
+  }
+  .nav a:hover { opacity: 1; }
+
+  .hero {
+    background: linear-gradient(165deg, var(--dusk) 0%, var(--dusk-2) 55%, #12151f 100%);
+    color: var(--chalk);
+    padding: 4rem 0 3.5rem;
+  }
+  .hero .label { color: var(--amber); }
+  .hero h1 { color: var(--chalk); margin: 0.5rem 0 0.75rem; }
+  .hero .lead { font-size: 1.12rem; max-width: 36rem; color: var(--chalk-dim); margin: 0 0 1.4rem; }
+  .hero-sign {
+    display: inline-block;
+    font-family: 'Archivo Narrow', sans-serif;
+    font-weight: 700; letter-spacing: 0.28em; font-size: 1.1rem;
+    border: 1px solid rgba(232, 163, 61, 0.45);
+    padding: 0.65rem 1rem; margin-bottom: 1.15rem;
+  }
+  .hero-sign i { font-style: normal; color: var(--amber); padding: 0 0.15rem; }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 0.65rem; }
+  .btn {
+    display: inline-block;
+    font-family: 'Archivo Narrow', sans-serif;
+    font-weight: 700; font-size: 0.82rem; letter-spacing: 0.1em;
+    text-transform: uppercase; text-decoration: none;
+    padding: 0.7rem 1.15rem; border-radius: 2px; border: 1px solid transparent;
+    cursor: pointer; font: inherit;
+  }
+  .btn-amber { background: var(--amber); color: var(--dusk-2); border: none; }
+  .btn-amber:hover { background: var(--amber-dim); }
+  .btn-ghost { border-color: rgba(238,234,224,0.35); color: var(--chalk); background: transparent; }
+  .btn-ghost:hover { border-color: var(--chalk); }
+  .btn-verge { background: var(--verge); color: var(--chalk); border: none; }
+  .btn-verge:hover { background: var(--verge-2); }
+  .btn.is-disabled { opacity: 0.4; pointer-events: none; }
+  .notice-strip {
+    margin-top: 1.6rem; padding: 0.85rem 1rem;
+    border-left: 3px solid var(--amber);
+    background: rgba(0,0,0,0.25);
+    font-size: 0.92rem; color: var(--chalk-dim); max-width: 40rem;
+  }
+
+  section { padding: 3.25rem 0; }
+  section.alt { background: #e5e0d4; }
+  .prose p { margin: 0 0 1rem; }
+
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.75rem 0; }
+  @media (max-width: 600px) {
+    .stats { grid-template-columns: 1fr; }
+    .nav { display: none; }
+  }
+  .stat {
+    background: #fff; border: 1px solid var(--line);
+    padding: 1.15rem 1.2rem; border-radius: 2px;
+  }
+  .stat .num {
+    font-family: 'Newsreader', serif;
+    font-size: 1.75rem; color: var(--rust); margin-bottom: 0.4rem;
+  }
+  .stat .cap { font-size: 0.95rem; opacity: 0.9; }
+  .stat .src {
+    margin-top: 0.65rem;
+    font-family: 'Archivo Narrow', sans-serif;
+    font-size: 0.72rem; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--verge);
+  }
+
+  .pillars { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1.5rem; }
+  @media (max-width: 760px) { .pillars { grid-template-columns: 1fr; } }
+  .pillar {
+    background: #fff; border-top: 3px solid var(--verge);
+    padding: 1.25rem 1.2rem 1.4rem; border-radius: 2px;
+  }
+  .pillar .mark {
+    font-family: 'Archivo Narrow', sans-serif;
+    font-weight: 700; letter-spacing: 0.12em; font-size: 0.75rem;
+    text-transform: uppercase; color: var(--verge); margin-bottom: 0.5rem;
+  }
+  .pillar p { margin: 0; font-size: 0.98rem; opacity: 0.9; }
+
+  /* Map + report */
+  #map {
+    height: min(52vh, 420px);
+    width: 100%;
+    border-radius: 2px;
+    border: 1px solid var(--line);
+    z-index: 1;
+    background: var(--chalk-dim);
+  }
+  .map-meta {
+    display: flex; flex-wrap: wrap; gap: 0.75rem 1.25rem;
+    align-items: center; margin: 0.75rem 0 1.25rem;
+    font-size: 0.9rem; opacity: 0.9;
+  }
+  .map-meta strong { color: var(--dusk); }
+  .safety {
+    background: #fff8e8;
+    border: 1px solid rgba(232, 163, 61, 0.45);
+    padding: 0.85rem 1rem;
+    margin: 0 0 1.25rem;
+    font-size: 0.92rem;
+    border-radius: 2px;
+  }
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 1.5rem;
+    align-items: start;
+  }
+  @media (max-width: 820px) { .grid-2 { grid-template-columns: 1fr; } }
+
+  .report-card {
+    background: #fff;
+    border: 1px solid var(--line);
+    padding: 1.25rem 1.2rem 1.35rem;
+    border-radius: 2px;
+  }
+  .report-card label {
+    display: block;
+    font-family: 'Archivo Narrow', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin: 0.75rem 0 0.3rem;
+    color: var(--dusk);
+  }
+  .report-card label:first-of-type { margin-top: 0; }
+  .report-card input,
+  .report-card select,
+  .report-card textarea {
+    width: 100%;
+    font: inherit;
+    font-size: 0.95rem;
+    padding: 0.5rem 0.6rem;
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    background: #faf8f4;
+    color: var(--asphalt);
+  }
+  .report-card textarea { min-height: 4.5rem; resize: vertical; }
+  .report-card .hint {
+    font-size: 0.82rem;
+    opacity: 0.75;
+    margin: 0.25rem 0 0;
+  }
+  .report-card .row-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.65rem;
+  }
+  @media (max-width: 480px) { .report-card .row-2 { grid-template-columns: 1fr; } }
+  .form-status {
+    margin-top: 0.75rem;
+    font-size: 0.9rem;
+    min-height: 1.3em;
+  }
+  .form-status.ok { color: var(--verge-2); }
+  .form-status.err { color: var(--rust); }
+  .check-line {
+    display: flex; gap: 0.5rem; align-items: flex-start;
+    margin: 0.85rem 0 0.5rem; font-size: 0.9rem;
+  }
+  .check-line input { width: auto; margin-top: 0.25rem; }
+
+  .panel {
+    background: #fff; border: 1px solid var(--line);
+    padding: 1.6rem 1.4rem 1.5rem; border-radius: 2px; margin-top: 1.25rem;
+  }
+  .goal-row {
+    display: flex; justify-content: space-between;
+    font-family: 'Archivo Narrow', sans-serif;
+    font-size: 0.85rem; letter-spacing: 0.06em; text-transform: uppercase;
+    margin: 1rem 0 0.45rem;
+  }
+  .goal-row strong { color: var(--verge); }
+  .bar { height: 8px; background: var(--chalk-dim); border-radius: 4px; overflow: hidden; margin-bottom: 1.25rem; }
+  .bar > span { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, var(--verge), var(--amber)); }
+  .uses { list-style: none; margin: 0; padding: 0; }
+  .uses li { display: flex; gap: 0.85rem; padding: 0.65rem 0; border-top: 1px solid var(--line); font-size: 0.95rem; }
+  .uses li:first-child { border-top: none; }
+  .uses .amt { font-family: 'Archivo Narrow', sans-serif; font-weight: 700; color: var(--verge); min-width: 3.4rem; }
+  .pay { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.25rem; }
+  .legal { margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--line); font-size: 0.9rem; }
+  .legal ul { margin: 0.75rem 0 0; padding-left: 1.15rem; }
+  .legal li { margin: 0.45rem 0; }
+  .legal strong { font-weight: 600; color: var(--dusk); }
+
+  footer {
+    background: var(--asphalt); color: var(--chalk-dim);
+    padding: 2.5rem 0 2rem; font-size: 0.92rem;
+  }
+  footer a { color: var(--chalk); }
+  footer .fmark {
+    font-family: 'Archivo Narrow', sans-serif;
+    font-weight: 700; letter-spacing: 0.28em; color: var(--chalk); margin-bottom: 0.5rem;
+  }
+  footer .links { margin-top: 1rem; display: flex; flex-wrap: wrap; gap: 0.75rem 1.25rem; }
+  footer .links a {
+    font-family: 'Archivo Narrow', sans-serif;
+    font-size: 0.78rem; letter-spacing: 0.08em;
+    text-transform: uppercase; text-decoration: none; opacity: 0.85;
+  }
+  .skip {
+    position: absolute; left: -999px; top: 0;
+    background: var(--amber); color: var(--dusk); padding: 0.5rem 1rem; z-index: 1100;
+  }
+  .skip:focus { left: 0.5rem; top: 0.5rem; }
+
+  .leaflet-container { font: inherit; }
+</style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="inner">
+      <a class="brand" href="#top">MOLI<span>·</span></a>
+      <nav class="nav" aria-label="Page">
+        <a href="#problem">The gap</a>
+        <a href="#work">What we do</a>
+        <a href="#map-section">Map &amp; report</a>
+        <a href="#support">Support</a>
+        <a href="#legal">Legal</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top">
+      <div class="wrap">
+        <p class="label">Proposed UK welfare body · in formation · not yet registered</p>
+        <div class="hero-sign">M<i>·</i>O<i>·</i>L<i>·</i>I</div>
+        <h1>Mercy On Lost Individuals</h1>
+        <p class="lead">
+          Built to respond to, record, and ultimately reduce animals dying on roads
+          across the United Kingdom — starting in Scotland. Report what you see.
+          Help turn invisible losses into evidence.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-amber" href="#map-section">Report a sighting</a>
+          <a class="btn btn-ghost" href="#support">Support formation</a>
+        </div>
+        <div class="notice-strip">
+          MOLI is <strong style="color:var(--chalk);font-weight:600">not a registered charity</strong>.
+          Sightings on the public map are <strong style="color:var(--chalk);font-weight:600">moderated</strong> before they appear.
+          Read the <a href="#legal" style="color:var(--amber)">legal notice</a> before donating.
+        </div>
+      </div>
+    </section>
+
+    <section id="problem">
+      <div class="wrap prose">
+        <p class="label">The gap</p>
+        <h2>The bit nobody’s job it is to care about</h2>
+        <p>
+          When an animal is killed on a road in Scotland or elsewhere in the UK,
+          there is usually no dedicated, humane, timely response. Most of what exists
+          is maintenance — and maintenance isn’t mercy.
+        </p>
+        <div class="stats">
+          <div class="stat">
+            <div class="num">~14,600</div>
+            <div class="cap">wildlife deaths in one year of FOI-based highway data for parts of the UK network — only a thin slice of what occurs</div>
+            <div class="src">GoCompare roadkill report (FOI)</div>
+          </div>
+          <div class="stat">
+            <div class="num">167k–335k</div>
+            <div class="cap">hedgehogs alone estimated killed on British roads each year</div>
+            <div class="src">Wembridge et al., Mammal Communications (2016)</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="alt" id="work">
+      <div class="wrap-wide">
+        <div class="wrap" style="width:100%;max-width:720px;margin:0 auto">
+          <p class="label">Three pillars</p>
+          <h2>Respond · Record · Prevent</h2>
+        </div>
+        <div class="pillars">
+          <article class="pillar">
+            <div class="mark">01 · Respond</div>
+            <h3>Respond</h3>
+            <p>A reporting path and, later, a network so injured or killed animals get a humane response — not only a clear-up.</p>
+          </article>
+          <article class="pillar">
+            <div class="mark">02 · Record</div>
+            <h3>Record</h3>
+            <p>Sightings logged by place and time. Public map points are approximate and moderated. This page is the first public layer of that record.</p>
+          </article>
+          <article class="pillar">
+            <div class="mark">03 · Prevent</div>
+            <h3>Prevent</h3>
+            <p>Evidence aimed at crossings, signage, and design where deaths cluster — when MOLI can lawfully carry that work.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="map-section">
+      <div class="wrap-wide">
+        <p class="label">Record</p>
+        <h2>Sightings map &amp; report</h2>
+        <p style="max-width:40rem;margin:0 0 1rem">
+          Public pins are <strong>approved, approximate</strong> locations only — not live emergency dispatch.
+          Your report is held for review before it can appear on the map.
+        </p>
+
+        <div class="safety">
+          <strong>Safety first.</strong> Do not stop on fast roads, hard shoulders, or anywhere that puts you or others at risk.
+          A rough area (road name, nearby town, or map click away from the carriageway) is enough.
+          This is not a substitute for calling the police or a local wildlife rescue if an animal is still alive and help is needed now.
+        </div>
+
+        <div class="map-meta">
+          <span><strong id="pin-count">—</strong> public points</span>
+          <span>Updated: <strong id="map-updated">—</strong></span>
+          <span id="map-hint" style="opacity:0.8">Click the map to set a location for your report</span>
+        </div>
+
+        <div class="grid-2">
+          <div>
+            <div id="map" role="application" aria-label="Map of moderated road sightings in the UK"></div>
+          </div>
+          <div class="report-card">
+            <h3 style="margin-top:0">Report a sighting</h3>
+            <p class="hint" style="margin:0 0 0.75rem">Approximate location · species if known · no photos required</p>
+            <form id="report-form" novalidate>
+              <label for="species">Species (or “unknown”)</label>
+              <input id="species" name="species" required maxlength="80" placeholder="e.g. hedgehog, badger, deer, unknown">
+
+              <div class="row-2">
+                <div>
+                  <label for="date">Date seen</label>
+                  <input id="date" name="date" type="date" required>
+                </div>
+                <div>
+                  <label for="time">Time (optional)</label>
+                  <input id="time" name="time" type="time">
+                </div>
+              </div>
+
+              <label for="area">Area / road (text)</label>
+              <input id="area" name="area" required maxlength="120" placeholder="e.g. A9 near Dunkeld, Scotland">
+
+              <div class="row-2">
+                <div>
+                  <label for="lat">Latitude</label>
+                  <input id="lat" name="lat" type="text" inputmode="decimal" placeholder="From map click" autocomplete="off">
+                </div>
+                <div>
+                  <label for="lng">Longitude</label>
+                  <input id="lng" name="lng" type="text" inputmode="decimal" placeholder="From map click" autocomplete="off">
+                </div>
+              </div>
+              <p class="hint">Optional but helpful. Click the map to fill. We may round pins before publishing.</p>
+
+              <label for="notes">Notes (optional)</label>
+              <textarea id="notes" name="notes" maxlength="500" placeholder="Condition, lane direction, anything useful — keep it factual"></textarea>
+
+              <label for="email">Contact email (optional)</label>
+              <input id="email" name="email" type="email" maxlength="120" placeholder="Only if we may follow up">
+              <p class="hint">Never shown on the map. Used only if you want a reply.</p>
+
+              <label class="check-line">
+                <input type="checkbox" id="safe" name="safe" required>
+                <span>I did not put myself or others at risk to make this report, and I understand pins are moderated and not an emergency service.</span>
+              </label>
+
+              <button type="submit" class="btn btn-verge" style="margin-top:0.75rem;width:100%">Submit report</button>
+              <p class="form-status" id="form-status" role="status"></p>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="alt" id="scotland">
+      <div class="wrap prose">
+        <p class="label">Geography</p>
+        <h2>Scotland first · UK purpose</h2>
+        <p>
+          MOLI’s purpose is United Kingdom–wide. First operations are expected in
+          <strong>Scotland</strong>. Charity registration will follow the nations in which
+          MOLI actually works (likely OSCR when ready).
+        </p>
+      </div>
+    </section>
+
+    <section id="support">
+      <div class="wrap">
+        <p class="label">Pre-charity fundraiser</p>
+        <h2>Help MOLI get off the ground</h2>
+        <p>Funds are asked only toward incorporation costs listed below.</p>
+        <div class="panel">
+          <div class="goal-row"><span><strong>£0 raised</strong> of £2,000 incorporation goal</span></div>
+          <div class="bar" aria-hidden="true"><span id="barFill"></span></div>
+          <ul class="uses">
+            <li><span class="amt">£40+</span><span>Charity registration and admin (OSCR and/or other UK regulators as needed)</span></li>
+            <li><span class="amt">£350</span><span>Governing document and legal review</span></li>
+            <li><span class="amt">£600</span><span>Reporting line and case-recording system</span></li>
+            <li><span class="amt">£1,010</span><span>Site, insurance, first-year running costs while trustees onboard</span></li>
+          </ul>
+          <div class="pay">
+            <a class="btn btn-verge is-disabled" id="pay-stripe" href="#" aria-disabled="true">Stripe</a>
+            <a class="btn btn-verge is-disabled" id="pay-gofundme" href="#" aria-disabled="true">GoFundMe</a>
+            <a class="btn btn-verge is-disabled" id="pay-paypal" href="#" aria-disabled="true">PayPal</a>
+          </div>
+          <p class="label" style="margin-top:1rem;opacity:0.75">Payment links open when the fundraiser is live</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="legal">
+      <div class="wrap">
+        <p class="label">Before you give</p>
+        <h2>Legal notice</h2>
+        <div class="legal">
+          <ul>
+            <li><strong>Not a registered charity.</strong> MOLI is a proposed body in formation. It is not registered with OSCR, the Charity Commission for England and Wales, or the Charity Commission for Northern Ireland.</li>
+            <li><strong>Sightings data.</strong> Public map points are moderated and approximate. Optional contact emails are for follow-up only and are not published. Do not submit other people’s personal data.</li>
+            <li><strong>Purpose of fundraising.</strong> Money is asked only for the incorporation costs listed above until a charity exists.</li>
+            <li><strong>If incorporation does not proceed.</strong> Unused funds returned where practical, or redirected to a registered charity with a closely related purpose; donors notified.</li>
+            <li><strong>No Gift Aid yet.</strong> Tax relief cannot be claimed until proper registration and declarations exist.</li>
+          </ul>
+          <p style="margin-top:1rem"><strong>Organiser contact:</strong> <span id="organiser-contact">[Add name / email]</span></p>
+          <p style="margin-top:0.75rem;font-size:0.88rem;opacity:0.85">This page is not legal advice.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <div class="fmark">M · O · L · I</div>
+      <p>Mercy On Lost Individuals — proposed UK welfare body in formation. Scotland first. Not a registered charity.</p>
+      <div class="links">
+        <a href="#map-section">Map &amp; report</a>
+        <a href="#support">Support</a>
+        <a href="#legal">Legal</a>
+        <a href="https://haylynn.github.io/haylynn/">Princess of Reality</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+  (function () {
+    /** CONFIG — set when you have a form backend */
+    var CONFIG = {
+      // Formspree example: 'https://formspree.io/f/xxxxxxxx'
+      // Or your own endpoint that accepts JSON POST
+      formEndpoint: '',
+      // mailto fallback if no endpoint (opens user's email client)
+      reportEmail: '', // e.g. 'moli@example.com'
+      sightingsUrl: 'sightings.json'
+    };
+
+    var bar = document.getElementById('barFill');
+    if (bar) bar.style.width = '0%';
+
+    // —— Map ——
+    var map = L.map('map', { scrollWheelZoom: false }).setView([56.8, -4.2], 6);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 18,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+    map.on('focus', function () { map.scrollWheelZoom.enable(); });
+    map.on('blur', function () { map.scrollWheelZoom.disable(); });
+
+    var draftMarker = null;
+    var layer = L.layerGroup().addTo(map);
+
+    function setDraft(latlng) {
+      if (draftMarker) map.removeLayer(draftMarker);
+      draftMarker = L.circleMarker(latlng, {
+        radius: 8,
+        color: '#E8A33D',
+        fillColor: '#E8A33D',
+        fillOpacity: 0.85,
+        weight: 2
+      }).addTo(map).bindPopup('Report location (not published until moderated)');
+      document.getElementById('lat').value = latlng.lat.toFixed(5);
+      document.getElementById('lng').value = latlng.lng.toFixed(5);
+    }
+
+    map.on('click', function (e) { setDraft(e.latlng); });
+
+    function loadSightings() {
+      fetch(CONFIG.sightingsUrl + '?t=' + Date.now())
+        .then(function (r) { return r.ok ? r.json() : Promise.reject(); })
+        .then(function (data) {
+          layer.clearLayers();
+          var list = (data && data.sightings) || [];
+          var publicPins = list.filter(function (s) {
+            return s && s.status !== 'example' && s.lat != null && s.lng != null;
+          });
+          // Show example only if no real pins yet
+          var toShow = publicPins.length ? publicPins : list.filter(function (s) {
+            return s && s.lat != null && s.lng != null;
+          });
+          toShow.forEach(function (s) {
+            var m = L.circleMarker([s.lat, s.lng], {
+              radius: 7,
+              color: '#3F5C46',
+              fillColor: '#3F5C46',
+              fillOpacity: 0.75,
+              weight: 2
+            });
+            var html = '<strong>' + escapeHtml(s.species || 'Unknown') + '</strong>';
+            if (s.area) html += '<br>' + escapeHtml(s.area);
+            if (s.date) html += '<br>' + escapeHtml(s.date);
+            if (s.status === 'example') html += '<br><em>Example pin</em>';
+            m.bindPopup(html);
+            layer.addLayer(m);
+          });
+          document.getElementById('pin-count').textContent = String(publicPins.length);
+          document.getElementById('map-updated').textContent = (data && data.updated) || '—';
+        })
+        .catch(function () {
+          document.getElementById('pin-count').textContent = '0';
+          document.getElementById('map-updated').textContent = 'unavailable';
+        });
+    }
+
+    function escapeHtml(s) {
+      return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    loadSightings();
+
+    // —— Form ——
+    var form = document.getElementById('report-form');
+    var statusEl = document.getElementById('form-status');
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      statusEl.className = 'form-status';
+      statusEl.textContent = '';
+
+      if (!document.getElementById('safe').checked) {
+        statusEl.className = 'form-status err';
+        statusEl.textContent = 'Please confirm the safety statement.';
+        return;
+      }
+
+      var payload = {
+        species: document.getElementById('species').value.trim(),
+        date: document.getElementById('date').value,
+        time: document.getElementById('time').value,
+        area: document.getElementById('area').value.trim(),
+        lat: document.getElementById('lat').value.trim(),
+        lng: document.getElementById('lng').value.trim(),
+        notes: document.getElementById('notes').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        source: 'moli-site',
+        submitted_at: new Date().toISOString()
+      };
+
+      if (!payload.species || !payload.date || !payload.area) {
+        statusEl.className = 'form-status err';
+        statusEl.textContent = 'Species, date, and area are required.';
+        return;
+      }
+
+      if (CONFIG.formEndpoint) {
+        statusEl.textContent = 'Sending…';
+        fetch(CONFIG.formEndpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify(payload)
+        })
+          .then(function (r) {
+            if (!r.ok) throw new Error('send failed');
+            statusEl.className = 'form-status ok';
+            statusEl.textContent = 'Thank you. Your report was sent for review. It will not appear on the map until moderated.';
+            form.reset();
+            if (draftMarker) { map.removeLayer(draftMarker); draftMarker = null; }
+          })
+          .catch(function () {
+            statusEl.className = 'form-status err';
+            statusEl.textContent = 'Could not send automatically. Try again later or use email if listed.';
+          });
+        return;
+      }
+
+      if (CONFIG.reportEmail) {
+        var subject = encodeURIComponent('MOLI sighting: ' + payload.species + ' / ' + payload.area);
+        var body = encodeURIComponent(
+          'Species: ' + payload.species + '\n' +
+          'Date: ' + payload.date + ' ' + (payload.time || '') + '\n' +
+          'Area: ' + payload.area + '\n' +
+          'Lat: ' + payload.lat + '\nLng: ' + payload.lng + '\n' +
+          'Notes: ' + payload.notes + '\n' +
+          'Contact: ' + payload.email + '\n' +
+          'Submitted: ' + payload.submitted_at
+        );
+        window.location.href = 'mailto:' + CONFIG.reportEmail + '?subject=' + subject + '&body=' + body;
+        statusEl.className = 'form-status ok';
+        statusEl.textContent = 'Your email app should open with the report. Send it to complete submission.';
+        return;
+      }
+
+      // Offline capture: download JSON for the organiser (works with zero backend)
+      var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'moli-sighting-' + Date.now() + '.json';
+      a.click();
+      URL.revokeObjectURL(a.href);
+      statusEl.className = 'form-status ok';
+      statusEl.textContent = 'No inbox configured yet — a copy of your report downloaded so you can send it to the organiser. Public pins only update after moderation.';
+    });
+  })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "updated": "2026-10-04",
+  "note": "Only moderated, approximate public points. No personal data. Empty until first approved reports.",
+  "sightings": [
+    {
+      "id": "example-001",
+      "lat": 56.4907,
+      "lng": -4.2026,
+      "species": "Example only — remove before public reliance",
+      "date": "2026-01-01",
+      "area": "Central Highlands (illustrative)",
+      "status": "example",
+      "notes": "Placeholder pin so the map is not blank. Delete this entry when real moderated data exists."
+    }
+  ]
+}
