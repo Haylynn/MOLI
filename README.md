@@ -1,43 +1,24 @@
-# MOLI site — map & sighting tracker
+# MOLI — map-first (pre-charity)
 
-## Files
-- `index.html` — full site + Leaflet map + report form
-- `sightings.json` — **public moderated pins only** (you edit this)
+**Primary job:** free, account-gated road sightings map (data collection).
+**Secondary:** possible charity formation later — not required for the map to work.
 
-## How reports work (static hosting)
+## Product rules
 
-1. Visitor submits the form.
-2. Until you set `CONFIG.formEndpoint` or `CONFIG.reportEmail` in `index.html`:
-   - browser **downloads a JSON** of the report (so nothing is lost).
-3. You review, then add an approved pin to `sightings.json`:
+| Rule | Detail |
+|------|--------|
+| Browse map | Public, no login |
+| Add a pin | Free, requires Princess of Reality account |
+| Public pins | Moderated only (`status: approved`) |
+| Not a charity | Copy stays clear until registration |
+| Safety | Never encourage stopping on fast roads |
 
-```json
-{
-  "id": "2026-001",
-  "lat": 56.12,
-  "lng": -3.94,
-  "species": "Hedgehog",
-  "date": "2026-10-03",
-  "area": "A92 near Freuchie",
-  "status": "approved",
-  "notes": ""
-}
-```
+## Auth path
 
-4. Commit/upload `sightings.json` — the map reloads it.
+1. **Now:** local contributor mode → queue in localStorage
+2. **Next:** Supabase Auth (shared with hub) + moli_reports table
+3. Approve → public sightings feed
 
-## Optional: auto-inbox
+## Deploy
 
-In `index.html` script `CONFIG`:
-
-```js
-formEndpoint: 'https://formspree.io/f/YOUR_ID',  // or own API
-reportEmail: 'you@domain.com',                 // mailto fallback
-```
-
-Remove the example pin from `sightings.json` before treating the map as live data.
-
-## Safety / privacy
-- Form stresses safe reporting; no requirement for photos.
-- Optional email never shown on map.
-- Round or offset lat/lng before publishing if needed.
+Upload as `moli/` → https://haylynn.github.io/haylynn/moli/

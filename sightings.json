@@ -1,16 +1,24 @@
 {
-  "updated": "2026-10-04",
-  "note": "Only moderated, approximate public points. No personal data. Empty until first approved reports.",
+  "updated": "2026-10-15",
+  "note": "Only status=approved pins show in the public count. Remove example before treating as live data.",
   "sightings": [
     {
       "id": "example-001",
       "lat": 56.4907,
       "lng": -4.2026,
-      "species": "Example only — remove before public reliance",
+      "species": "Example \u2014 delete when live",
       "date": "2026-01-01",
       "area": "Central Highlands (illustrative)",
       "status": "example",
-      "notes": "Placeholder pin so the map is not blank. Delete this entry when real moderated data exists."
+      "notes": "Placeholder so the map is not empty.",
+      "road_type": "a_road",
+      "speed_limit": "60",
+      "setting": "rural",
+      "condition": "dead",
+      "solutions": [
+        "warning_signs",
+        "wildlife_crossing"
+      ]
     }
   ]
 }
